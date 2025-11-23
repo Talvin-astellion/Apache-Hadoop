@@ -16,7 +16,7 @@ POSTGRES_VERSION = 12
 Java >= 11 
 jupyterlab >= 3.5
 jupyter notebook >= 6.5
-Python 3.8 – 3.12 
+Python 3.8 – 3.12
 
 See Jyputer notebook in:
 http://localhost:8889/
