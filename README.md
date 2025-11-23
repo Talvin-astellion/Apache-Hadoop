@@ -13,9 +13,9 @@ The aim of this repository is to show you the use of docker as a powerful tool t
 Apache Spark itself does not supply storage or any Resource Management. It is just a unified framework for in memory processing large amount of data near to real time.
 checking the docker-compose.yml file you can see the detailed docker images for spark
 
-- spark-master (wittline/spark-master:3.0.0)
-- spark-worker-1 (wittline/spark-worker:3.0.0)
-- spark-worker-2 (wittline/spark-worker:3.0.0)
+- spark-master (wittline/spark-master:3.5.0)
+- spark-worker-1 (wittline/spark-worker:3.5.0)
+- spark-worker-2 (wittline/spark-worker:3.5.0)
  
 you can check the details about the docker image here: <a  href="https://hub.docker.com/u/wittline"> wittline</a>
 
@@ -30,7 +30,7 @@ The table above shows that one way to recognize a standalone configuration is by
 The pyspark code will be written using jupyter notebooks, we will submit the code to the standalone cluster using the SparkSession
 checking the docker-compose.yml file you can see the detailed docker images for spark
 
-- jupyterlab (wittline/jupyterlab:3.0.0-spark-3.0.0)
+- jupyterlab (built locally with PySpark 3.5.0)
 
 you can check the details about the docker image here: <a  href="https://hub.docker.com/u/wittline"> wittline</a>
 
@@ -39,7 +39,7 @@ Apache Spark manages all the complexities of create and manage global and sessio
 
 - hive-server (fjardim/fjardim/hive)
 - hive-metastore (wittline/fjardim/hive)
-- hive-metastore-postgresql (wittline/spark-worker:3.0.0)
+- hive-metastore-postgresql (wittline/spark-worker:3.5.0)
 
 you can check the details about the docker image here: <a href="https://hub.docker.com/u/fjardim">fjardim</a>
 

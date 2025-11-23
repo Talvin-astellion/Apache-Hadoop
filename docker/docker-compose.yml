@@ -1,62 +1,81 @@
-version: "3.6"
 services:
   jupyterlab:
-    image: wittline/jupyterlab:3.0.0-spark-3.0.0
+    build:
+      context: ./jupyterlab
     container_name: jupyterlab
     ports:
-      - 8889:8889
-      - 4040:4040
+      - "8889:8888"
+      - "4040:4040"
     volumes:
       - ./workspace:/opt/workspace
+
   spark-master:
-    image: wittline/spark-master:3.0.0
+    build:
+      context: ./spark
+      args:
+        SPARK_VERSION: "3.5.0"
+        HADOOP_VERSION: "3.3"
     container_name: spark-master
     ports:
-      - 8080:8080
-      - 7077:7077
+      - "8080:8080"
+      - "7077:7077"
     env_file:
       - ./base/hadoop/hadoop-hive.env
     depends_on:
       - hive-server
+    environment:
+      - SPARK_ROLE=master
     volumes:
       - ./workspace:/opt/workspace
-      - ./base/spark_conf/hadoop:/etc/hadoop/conf/
-      - ./base/spark_conf/hive/hive-site.xml:/usr/bin/spark-3.0.0-bin-hadoop3.2/conf/hive-site.xml
+      - ./base/spark_conf/hadoop:/etc/hadoop/conf
+      - ./base/spark_conf/hive/hive-site.xml:/opt/spark/conf/hive-site.xml
+
   spark-worker-1:
-    image: wittline/spark-worker:3.0.0
+    build:
+      context: ./spark
+      args:
+        SPARK_VERSION: "3.5.0"
+        HADOOP_VERSION: "3.3"
     container_name: spark-worker-1
     depends_on:
-      - spark-master    
+      - spark-master
     environment:
-      - SPARK_MASTER=spark://spark-master:7077      
+      - SPARK_ROLE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=1024m      
+      - SPARK_WORKER_MEMORY=1024m
     ports:
-      - 8081:8081
+      - "8081:8081"
     env_file:
       - ./base/hadoop/hadoop-hive.env
     volumes:
       - ./workspace:/opt/workspace
-      - ./base/spark_conf/hadoop:/etc/hadoop/conf/
-      - ./base/spark_conf/hive/hive-site.xml:/usr/bin/spark-3.0.0-bin-hadoop3.2/conf/hive-site.xml
+      - ./base/spark_conf/hadoop:/etc/hadoop/conf
+      - ./base/spark_conf/hive/hive-site.xml:/opt/spark/conf/hive-site.xml
+
   spark-worker-2:
-    image: wittline/spark-worker:3.0.0
+    build:
+      context: ./spark
+      args:
+        SPARK_VERSION: "3.5.0"
+        HADOOP_VERSION: "3.3"
     container_name: spark-worker-2
     depends_on:
-      - spark-master     
+      - spark-master
     environment:
-      - SPARK_MASTER=spark://spark-master:7077      
+      - SPARK_ROLE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=1024m  
+      - SPARK_WORKER_MEMORY=1024m
     ports:
-      - 8082:8081
+      - "8082:8081"
     env_file:
       - ./base/hadoop/hadoop-hive.env
     volumes:
       - ./workspace:/opt/workspace
-      - ./base/spark_conf/hadoop:/etc/hadoop/conf/
-      - ./base/spark_conf/hive/hive-site.xml:/usr/bin/spark-3.0.0-bin-hadoop3.2/conf/hive-site.xml
-  
+      - ./base/spark_conf/hadoop:/etc/hadoop/conf
+      - ./base/spark_conf/hive/hive-site.xml:/opt/spark/conf/hive-site.xml
+
   namenode:
     image: fjardim/namenode_sqoop
     container_name: namenode
@@ -111,7 +130,7 @@ services:
       resources:
         limits:
           memory: 500m
-  
+
   hive-server:
     image: fjardim/hive
     container_name: hive-server
@@ -129,7 +148,7 @@ services:
       resources:
         limits:
           memory: 500m
-  
+
   hive-metastore:
     image: fjardim/hive
     container_name: hive_metastore
@@ -147,7 +166,7 @@ services:
       resources:
         limits:
           memory: 500m
-  
+
   hive-metastore-postgresql:
     image: fjardim/hive-metastore
     container_name: hive-metastore-postgresql
@@ -167,33 +186,33 @@ services:
     hostname: hue
     container_name: hue
     ports:
-    - "8888:8888"
+      - "8888:8888"
     volumes:
       - ./base/hue/hue-overrides.ini:/usr/share/hue/desktop/conf/z-hue.ini
     depends_on:
-      - "database"
+      - database
     deploy:
       resources:
         limits:
           memory: 500m
-  
+
   database:
     image: fjardim/mysql
     container_name: database
     hostname: database
     ports:
-        - "33061:3306"
+      - "33061:3306"
     deploy:
       resources:
         limits:
           memory: 500m
     command: mysqld --innodb-flush-method=O_DSYNC --innodb-use-native-aio=OFF --init-file /data/application/init.sql
     volumes:
-        - ./base/mysql/data:/var/lib/mysql
-        - ./base/mysql/init.sql:/data/application/init.sql
+      - ./base/mysql/data:/var/lib/mysql
+      - ./base/mysql/init.sql:/data/application/init.sql
     environment:
-        MYSQL_ROOT_USER: root
-        MYSQL_ROOT_PASSWORD: secret
-        MYSQL_DATABASE: hue
-        MYSQL_USER: root
-        MYSQL_PASSWORD: secret
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: hue
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
